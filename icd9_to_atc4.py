@@ -16,23 +16,31 @@ input_data_path = os.environ.get("input_data_path")
 ICD2ATC_path = os.environ.get("ICD2ATC_path")
 
 def icd9_to_atc4(icd9:str, ICD2ATC_df:pd.DataFrame)->str:
-    '''input icd9 value, return atc-4 accordingly'''
-    # To-do: 补充这个函数
-    atc4_distr = ICD2ATC_df[lambda ICD2ATC_df: ICD2ATC_df["ICD"] == icd9]
+    '''
+    input icd9 value, return atc-4 accordingly
+    icd9 must be integer or else the boolean indexing will always be False
+    '''
+    # 获取对应分布
+    atc4_distr = ICD2ATC_df[ICD2ATC_df["ICD"] == icd9]
+
+    # 转换为字典格式
+    atc4_distr = atc4_distr[['ATC', 'Prob']].to_dict()
     print(atc4_distr)
-    return
+
+    # 返回字典格式
+    return atc4_distr
 
 
 def read_ICD2ATC(path:str=ICD2ATC_path)->pd.DataFrame:
     '''read ICD2ATC excel file'''
 
     dtypes = {
-        "ATC": "category", 
-        "ICD": "category",
+        "ATC": "object", 
+        "ICD": "object",
         "Prob": "float"
     }
 
-    df = pd.read_excel(path, dtype=dtypes)
+    df = pd.read_excel(path, dtype=dtypes, usecols=list(dtypes))
     return df
 
 
@@ -58,8 +66,9 @@ def iterate_over(icd9_df:pd.DataFrame, ICD2ATC_df:pd.DataFrame)->pd.DataFrame:
 
 
 def test_icd9_to_atc4():
-    icd9 = "8"
+    icd9 = 3    # icd9 must be integer
     ICD2ATC_df = read_ICD2ATC()
+    print(ICD2ATC_df.dtypes)
     print(ICD2ATC_df)
     icd9_to_atc4(icd9, ICD2ATC_df)
 
