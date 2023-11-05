@@ -71,6 +71,9 @@ def transfer(original_df:pd.DataFrame):
     
     # 去除概率为0.0的行
     group_df = group_df[group_df["Prob"] != 0.00]
+
+    # 通过reset index使得保存的结果中，ICD不为合并单元格
+    group_df = group_df.reset_index()
     print(group_df)
 
     # 存储为excel
