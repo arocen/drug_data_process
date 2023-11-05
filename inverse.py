@@ -9,7 +9,7 @@ load_dotenv() # load .env file
 ATC2ICD_path = os.environ.get("ATC2ICD_path")
 ICD2ATC_path = os.environ.get("ICD2ATC_path")
 
-def read(original_path=ATC2ICD_path)->pd.DataFrame:
+def read(original_path:str=ATC2ICD_path)->pd.DataFrame:
     '''
     read all sheets into one dataframe
     return pd.DataFrame
@@ -54,7 +54,7 @@ def read(original_path=ATC2ICD_path)->pd.DataFrame:
 
 
 
-def transfer(original_df)->dict:
+def transfer(original_df:pd.DataFrame):
     '''Transfer the ATC-4 -> ICD-9 into ICD-9 -> ATC-4 relationshipss'''
 
     # 遍历, 计算逆向概率
