@@ -16,8 +16,8 @@ def read(original_path:str=ATC2ICD_path)->pd.DataFrame:
     '''
 
     dtypes = {
-        "ATC": "category",
-        "ICD": "category",
+        "ATC": "category", # This is useless, 
+        "ICD": "category", # category type will be wrongly converted into object type automatically after concatenation of dataframes.
         "Prob": "float"
     }
 
