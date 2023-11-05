@@ -13,7 +13,7 @@ column_name_of_icd9 = os.environ.get("column_name_of_icd9")
 index_of_atc4_column = os.environ.get("index_of_atc_column")   # index start with 1
 output_save_path = os.environ.get("output_save_path")
 input_data_path = os.environ.get("input_data_path")
-
+ICD2ATC_path = os.environ.get("ICD2ATC_path")
 
 def icd9_to_atc4(icd9:str)->str:
     '''input icd9 value, return atc-4 accordingly'''
@@ -23,9 +23,10 @@ def icd9_to_atc4(icd9:str)->str:
     return
 
 
-def read_ICD2ATC()->pd.DataFrame:
+def read_ICD2ATC(path:str=ICD2ATC_path)->pd.DataFrame:
     '''read ICD2ATC excel file'''
-    return
+    df = pd.read_excel(path)
+    return df
 
 
 def iterate_over(df:pd.DataFrame)->pd.DataFrame:
