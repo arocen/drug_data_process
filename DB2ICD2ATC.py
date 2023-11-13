@@ -8,6 +8,8 @@ load_dotenv() # load .env file
 
 death_BD2ICD_path=os.environ.get("death_BD2ICD_path")
 disease_BD2ICD_path=os.environ.get("disease_BD2ICD_path")
+death_ATC = os.environ.get("death_ATC")
+disease_ATC = os.environ.get("disease_ATC")
 
 # Step 1: disease burden to icd9
 
@@ -66,6 +68,7 @@ def icd2atc(icd_df:pd.DataFrame, column_name_of_atc="ATC-4")->pd.DataFrame:
 
         # skip handling of missing values of icd9
     return icd_df
+
 
 def standarize_icd(icds:list[str])->list[str]:
     '''
@@ -178,23 +181,24 @@ def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->dict:
     '''
     results = pd.DataFrame()
     for icd in icd_list:
+        # 只查询纯数字
+        if icd.isdigit():
+            icd = int(icd) # icd must be int to look up atc4 distribution
 
-        # look up atc4 distribution
-        
-        # bugs when getting distribution
-        atc4_distr = i2a.icd9_to_atc4(icd, icd2atc_df)
-        # print(atc4_distr)
+            # look up atc4 distribution
+            atc4_distr = i2a.icd9_to_atc4(icd, icd2atc_df)
+            # print(atc4_distr)
 
-        # convert dict to DataFrame
-        distr_df = pd.DataFrame.from_dict(atc4_distr)
+            # convert dict to DataFrame
+            distr_df = pd.DataFrame.from_dict(atc4_distr)
 
-        # check if look up result is empty
-        if not distr_df.empty:
+            # check if look up result is empty
+            if not distr_df.empty:
 
-            
-            print(distr_df)
-            # merge dictionaries and sum up probabilities of dupicate atc codes
-            results = pd.concat([results, distr_df]).groupby(['ATC']).sum().reset_index()
+                
+                print(distr_df)
+                # merge dictionaries and sum up probabilities of dupicate atc codes
+                results = pd.concat([results, distr_df]).groupby(['ATC']).sum().reset_index()
     return results
 
 
