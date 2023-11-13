@@ -46,7 +46,7 @@ def convert_icd9_to_list(icd_df):
             # 转换为列表
             icds = icd_value.split(", ")
             # 用re识别整数部分和范围
-            print(icds)
+            
 
             # 调用helper function，将atc-4及概率分布写入新的一列
             # To-do:
@@ -66,6 +66,9 @@ def standarize_icd(icds:list[str])->list[str]:
     ['v23', 'v24', 'v25', 'v26']
     >>> print(standarize_icd(["055.1-055.8"]))
     ['55']
+    >>> new_icds = ["A035.2-A036.5", "M008.2"]
+    >>> print(standarize_icd(new_icds))
+    ['A35', 'A36', 'M8']
     '''
     
     standarized = []
@@ -84,6 +87,9 @@ def standarize_icd(icds:list[str])->list[str]:
                 for value in values:
                     # convert int back to str, add prefix to each value (if exists)
                     standarized.append(prefix + str(value))
+        else:
+            # remove zeros in the front and decimal numbers
+            standarized.append(rm_zeros_and_decimals(icd))
                 
     return standarized
 
@@ -108,6 +114,21 @@ def match_range(icd_range:str)->list:
     results = re.match(pattern,  icd_range).groups()
 
     return results
+
+def rm_zeros_and_decimals(icd9_code:str)->str:
+    '''
+    A helper function of standarize_icd(). Remove zeros in the front and decimal numbers of icd9 codes.
+    Return: standarized single icd9 code.
+
+    >>> icd = "v007.6"
+    >>> print(rm_zeros_and_decimals(icd))
+    v7
+    '''
+    pattern = "([a-zA-Z]*)0*([1-9]+)\.?\d*"
+    results = re.match(pattern,  icd9_code).groups()
+    (prefix, numbers) = results
+    return prefix + numbers
+
 
 
 # for each element of list, use regular expression to match integer part and scope 
