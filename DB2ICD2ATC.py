@@ -57,34 +57,42 @@ def convert_icd9_to_list(icd_df):
         # 跳过缺失值的处理
     return
 
-def standarize_icd(icds:list)->list:
-    '''A helper function of convert_icd9_to_list to standarize icd codes.'''
+def standarize_icd(icds:list[str])->list[str]:
+    '''
+    A helper function of convert_icd9_to_list(), standarizes icd codes.
     
-
+    >>> icds = ["v023.5-v026.6"]
+    >>> print(standarize_icd(icds))
+    ['v23', 'v24', 'v25', 'v26']
+    >>> print(standarize_icd(["055.1-055.8"]))
+    ['55']
+    '''
+    
+    standarized = []
     for icd in icds:
         # check if it's a range
         if "-" in icd:
-            lower, upper = icd.split[0], icd.split[1]
+            # unpack tuple
+            (prefix, lower, upper) = match_range(icd)
+
             # check if the range is less than 1 (e.g. 001.1-001.9)
-            # check and extract digit part
-            if not lower.isdigit():
-                a = 1
-
-                # get values between lower digit and upper digit
-                # get prefix
-            # transfer str into int
-            # remove zeros in the front (if exist)
+            if lower == upper:
+                standarized.append(prefix + lower)
             else:
-                lower, upper = int(lower), int(upper)
-            # get values between upper and lower
-
-                # add prefix to each value (if exists)
-    return
+                # transfer str into int and get values from lower to lower
+                values = range(int(lower), int(upper) + 1)
+                for value in values:
+                    # convert int back to str, add prefix to each value (if exists)
+                    standarized.append(prefix + str(value))
+                
+    return standarized
 
 def match_range(icd_range:str)->list:
     '''
-    input: icd characters including '-' which denotes a range exists
-    return:upper, lower, prefix
+    A helper function of standarize_icd().
+    Input: icd characters including '-' which denotes a range exists.
+    Return: a tuple of prefix, lower, and upper. 
+        If prefix does not exist, return value of prefix is an empty string.
 
     >>> import re
     >>> icd_range = "001.1-001.9"
