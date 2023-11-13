@@ -14,6 +14,7 @@ disease_ATC = os.environ.get("disease_ATC")
 # Step 1: disease burden to icd9
 
 # read the specific columns of IHME's excel file about the matches of DB and icd9 as Dataframe (2 tables, death and disease)
+# for each element of list, use regular expression to match integer part and scope 
 def load_death_BD2ICD(path=death_BD2ICD_path)->pd.DataFrame:
     '''Read BD-to-ICD excel file of deaths'''
     
@@ -180,6 +181,14 @@ def rm_zeros_and_decimals(icd9_code:str)->str:
         print("icd code:", icd9_code)
 
 
+
+# Step 2: icd9 to atc4
+# measure_id-2-measure_name = {"1": "Deaths", "2": DALYs (Disability-Adjusted Life Years), and more ?} 
+# to specify whether its death or disease base on measure_id or measure_name (reference: the explanation of measure_name  on IHME's website, MEASURE_METRIC_DEFINITIONS in codebook folder)
+# for each icd9 list, loop over its element and look up atc4 codes, probability accordingly
+# sum probabilies of duplicate atc4 codes
+# write unique atc4 codes and probability to a new column of each disease burden
+
 def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->pd.DataFrame:
     '''
     Input: a list of standarized icd codes.
@@ -209,14 +218,7 @@ def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->pd.DataFrame:
     return results
 
 
-# for each element of list, use regular expression to match integer part and scope 
 
-# Step 2: icd9 to atc4
-# measure_id-2-measure_name = {"1": "Deaths", "2": DALYs (Disability-Adjusted Life Years), and more ?} 
-# to specify whether its death or disease base on measure_id or measure_name (reference: the explanation of measure_name  on IHME's website, MEASURE_METRIC_DEFINITIONS in codebook folder)
-# for each icd9 list, loop over its element and look up atc4 codes, probability accordingly
-# sum probabilies of duplicate atc4 codes
-# write unique atc4 codes and probability to a new column of each disease burden
 
 # Step 3: use such relationships
 # load disease burden data from IHME and look up their atc4 codes
