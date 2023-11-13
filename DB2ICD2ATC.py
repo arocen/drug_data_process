@@ -56,15 +56,18 @@ def icd2atc(icd_df:pd.DataFrame, column_name_of_atc="ATC-4")->pd.DataFrame:
 
             # convert str to list
             icds = icd_value.split(", ")
-
-            # standarize icd codes with helper function
-            standarized = standarize_icd(icds)
             
-            
-            # 调用helper function，将atc-4及概率分布写入新的一列
-            atc_dict = get_atc(standarized, icd2atc_df)
+            # check if icds is an empty list or nan
+            if icds:
+                # standarize icd codes with helper function
+                standarized = standarize_icd(icds)
+                
+                
+                # 调用helper function，将atc-4及概率分布写入新的一列
+                # print(icds)
+                atc_dict = get_atc(standarized, icd2atc_df)
 
-            icd_df.at[i, column_name_of_atc] = str(atc_dict)
+                icd_df.at[i, column_name_of_atc] = str(atc_dict)
 
         # skip handling of missing values of icd9
     return icd_df
@@ -113,7 +116,8 @@ def standarize_icd(icds:list[str])->list[str]:
                 for value in values:
                     # convert int back to str, add prefix to each value (if exists)
                     standarized.append(prefix + str(value))
-        else:
+        # check if icd is "nan"
+        elif icd != "nan":
             # remove zeros in the front and decimal numbers
             standarized.append(rm_zeros_and_decimals(icd))
                 
@@ -169,9 +173,13 @@ def rm_zeros_and_decimals(icd9_code:str)->str:
     40
     '''
     pattern = "^([a-zA-Z]*)0*(\d+)(?:\.\d+)?$"
-    results = re.match(pattern,  icd9_code).groups()
-    (prefix, numbers) = results
-    return prefix + numbers
+    try:
+        results = re.match(pattern,  icd9_code).groups()
+        (prefix, numbers) = results
+        return prefix + numbers
+    except:
+        print("Error matching single icd code!")
+        print("icd code:", icd9_code)
 
 
 def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->dict:
@@ -196,7 +204,7 @@ def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->dict:
             if not distr_df.empty:
 
                 
-                print(distr_df)
+                # print(distr_df)
                 # merge dictionaries and sum up probabilities of dupicate atc codes
                 results = pd.concat([results, distr_df]).groupby(['ATC']).sum().reset_index()
     return results
