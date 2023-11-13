@@ -15,10 +15,15 @@ output_save_path = os.environ.get("output_save_path")
 input_data_path = os.environ.get("input_data_path")
 ICD2ATC_path = os.environ.get("ICD2ATC_path")
 
-def icd9_to_atc4(icd9:str, ICD2ATC_df:pd.DataFrame)->dict:
+def icd9_to_atc4(icd9:int, ICD2ATC_df:pd.DataFrame)->dict:
     '''
     input icd9 value, return atc-4 accordingly
     icd9 must be integer or else the boolean indexing will always be False
+
+    >>> df = read_ICD2ATC()
+    >>> icd = 7
+    >>> print(icd9_to_atc4(icd, df))
+    {'ATC': {3: 'A07A', 4: 'P01A'}, 'Prob': {3: 0.4666500746640119, 4: 0.533349925335988}}
     '''
     # 获取对应分布
     atc4_distr = ICD2ATC_df[ICD2ATC_df["ICD"] == icd9]
@@ -104,3 +109,9 @@ def test_icd9_to_atc4():
 
 # if __name__ == "__main__":
 #     main()
+
+
+# run doctest
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

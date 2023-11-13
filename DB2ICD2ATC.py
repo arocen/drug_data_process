@@ -8,7 +8,6 @@ load_dotenv() # load .env file
 
 death_BD2ICD_path=os.environ.get("death_BD2ICD_path")
 disease_BD2ICD_path=os.environ.get("disease_BD2ICD_path")
-ICD2ATC_path = os.environ.get("ICD2ATC_path")
 
 # Step 1: disease burden to icd9
 
@@ -181,6 +180,8 @@ def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->dict:
     for icd in icd_list:
 
         # look up atc4 distribution
+        
+        # bugs when getting distribution
         atc4_distr = i2a.icd9_to_atc4(icd, icd2atc_df)
         # print(atc4_distr)
 
