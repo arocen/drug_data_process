@@ -8,3 +8,4 @@ As a number of studies have pointed out, this is very meaningful:
 icd9_to_atc4.py and inverse.py: from atc4-> icd9 to icd9 -> atc4
 
 disease burden (DB) -> icd9 -> atc4
+*to-do: update variables in .env.example*
