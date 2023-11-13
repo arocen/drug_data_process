@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 from dotenv import load_dotenv
+import re
 
 load_dotenv() # load .env file
 
@@ -48,12 +49,18 @@ def convert_icd9_to_list(icd_df):
             print(icds)
 
             # 调用helper function，将atc-4及概率分布写入新的一列
+            # To-do:
+
+
+
             # icd_df.at[i, column_name_of_atc] = str(icd9_to_atc4(icd9, ICD2ATC_df))
         # 跳过缺失值的处理
     return
 
 def standarize_icd(icds:list)->list:
     '''A helper function of convert_icd9_to_list to standarize icd codes.'''
+    
+
     for icd in icds:
         # check if it's a range
         if "-" in icd:
@@ -61,6 +68,7 @@ def standarize_icd(icds:list)->list:
             # check if the range is less than 1 (e.g. 001.1-001.9)
             # check and extract digit part
             if not lower.isdigit():
+                a = 1
 
                 # get values between lower digit and upper digit
                 # get prefix
@@ -72,6 +80,27 @@ def standarize_icd(icds:list)->list:
 
                 # add prefix to each value (if exists)
     return
+
+def match_range(icd_range:str)->list:
+    '''
+    input: icd characters including '-' which denotes a range exists
+    return:upper, lower, prefix
+
+    >>> import re
+    >>> icd_range = "001.1-001.9"
+    >>> print(match_range(icd_range))
+    ('', '1', '1')
+    >>> icd_range = "v22.2-v24.7"
+    >>> results = match_range(icd_range)
+    >>> print(results)
+    ('v', '22', '24')
+    '''
+    # zeros (if exist) in the front of digits are filtered by this pattern
+    pattern = "([a-zA-Z]*)0*([1-9]+)\.?\d*\-[a-zA-Z]*0*([1-9]+)\.?\d*"
+    results = re.match(pattern,  icd_range).groups()
+
+    return results
+
 
 # for each element of list, use regular expression to match integer part and scope 
 
@@ -87,3 +116,9 @@ def standarize_icd(icds:list)->list:
 # write atc4 codes and probabilities
 
 # Question: Normalization atc4 probabilities of each disease burden? How to handle missing values when doing this?
+
+
+# run doctest
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
