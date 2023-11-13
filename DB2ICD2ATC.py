@@ -63,10 +63,13 @@ def icd2atc(icd_df:pd.DataFrame, column_name_of_atc="ATC-4")->pd.DataFrame:
                 standarized = standarize_icd(icds)
                 
                 
-                # 调用helper function，将atc-4及概率分布写入新的一列
+                # lookup atc
                 # print(icds)
-                atc_dict = get_atc(standarized, icd2atc_df)
+                atc_df = get_atc(standarized, icd2atc_df)
 
+                # convert atc_df to dict
+                atc_dict = atc_df.to_dict()
+                # 将atc-4及概率分布写入新的一列
                 icd_df.at[i, column_name_of_atc] = str(atc_dict)
 
         # skip handling of missing values of icd9
@@ -155,11 +158,6 @@ def match_range(icd_range:str)->list:
     else:
         return None
 
-
-
-
-    
-
 def rm_zeros_and_decimals(icd9_code:str)->str:
     '''
     A helper function of standarize_icd(). Remove zeros in the front and decimal numbers of icd9 codes.
@@ -182,7 +180,7 @@ def rm_zeros_and_decimals(icd9_code:str)->str:
         print("icd code:", icd9_code)
 
 
-def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->dict:
+def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->pd.DataFrame:
     '''
     Input: a list of standarized icd codes.
     Return: a dictionary whose keys are atc codes, values are probabilities.
@@ -207,6 +205,7 @@ def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->dict:
                 # print(distr_df)
                 # merge dictionaries and sum up probabilities of dupicate atc codes
                 results = pd.concat([results, distr_df]).groupby(['ATC']).sum().reset_index()
+
     return results
 
 
