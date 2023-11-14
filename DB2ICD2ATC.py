@@ -232,7 +232,7 @@ def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->pd.DataFrame:
 # write atc4 codes and probabilities
 
 
-def load_and_update_IHME(folder_path:str=IHME_data_folder, save_folder:str=IHME_save_folder)->pd.DataFrame:
+def load_and_update_IHME(folder_path:str=IHME_data_folder, save_folder:str=IHME_save_folder):
     '''load IHME csv files in path as a list of DataFrame'''
     csv_files = sorted([f for f in os.listdir(folder_path) if f.endswith(".csv")])
     (death_df, disease_df) = load_death_and_disease()
@@ -244,6 +244,7 @@ def load_and_update_IHME(folder_path:str=IHME_data_folder, save_folder:str=IHME_
         df = pd.read_csv(path)
         df = insert_atc(df, death_df, disease_df)
         df.to_csv(save_path)
+    print(f"Updated data saved in {save_folder}")
     return
 
 
@@ -263,10 +264,12 @@ def insert_atc(df:pd.DataFrame, death_df:pd.DataFrame, disease_df:pd.DataFrame)-
 def lookup_atc(cause:str, death:bool, death_df:pd.DataFrame, disease_df:pd.DataFrame)->str:
     '''Return atc-4 distribution as a str type'''
     if death:
-        atc = death_df[death_df["Cause"]==cause]["ATC-4"]
+        atc = death_df[death_df["Cause"]==cause]
+        atc = atc["ATC-4"]
         return atc
     else:
-        atc = disease_df[death_df["Cause"]==cause]["ATC-4"]
+        atc = disease_df[disease_df["Cause"]==cause]
+        atc = atc["ATC-4"]
         return atc
 
 def load_death_and_disease(death_path=death_ATC, disease_path=disease_ATC)->tuple:
