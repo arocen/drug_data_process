@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv() # load .env file
 
-IHME_test_data_folder = os.environ.get("IHME_test_data_folder=")
+IHME_test_data_folder = os.environ.get("IHME_test_data_folder")
 IHME_test_save_folder = os.environ.get("IHME_test_save_folder")
 
 def run():

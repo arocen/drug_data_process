@@ -246,7 +246,7 @@ def load_and_update_IHME(folder_path:str=IHME_data_folder, save_folder:str=IHME_
         path = os.path.join(folder_path, filename)
         save_path = os.path.join(save_folder, "updated_" + filename)
         df = pd.read_csv(path)
-        df = efficient_insert(df, death_df, disease_df)
+        efficient_insert(df, death_df, disease_df)
         df.to_csv(save_path)
     print(f"Updated data saved in {save_folder}")
     return
@@ -266,21 +266,24 @@ def insert_atc(df:pd.DataFrame, death_df:pd.DataFrame, disease_df:pd.DataFrame)-
     return df
 
 def efficient_insert(df:pd.DataFrame, death_df:pd.DataFrame, disease_df:pd.DataFrame)->pd.DataFrame:
-    '''use apply to efficiently insert atc to new column'''
+    '''
+    Use apply to efficiently insert atc to new column.
+    death column indicates whether this row is related to death.
+    '''
     df["death"] = df["measure_id"].apply(isDeath)
-    df.apply(lambda x: lookup_atc(x["cause_name"], x["death"], death_df, disease_df), axis=1)
+    df["ATC-4"] = df.apply(lambda x: lookup_atc(x["cause_name"], x["death"], death_df, disease_df), axis=1, result_type="expand")
     return df
 
 def lookup_atc(cause:str, death:bool, death_df:pd.DataFrame, disease_df:pd.DataFrame)->str:
     '''Return atc-4 distribution as a str type'''
     if death:
         atc = death_df[death_df["Cause"]==cause]
-        atc = atc["ATC-4"]
-        return atc
+        atc = atc["ATC-4"].to_dict()
+        return str(atc)
     else:
         atc = disease_df[disease_df["Cause"]==cause]
-        atc = atc["ATC-4"]
-        return atc
+        atc = atc["ATC-4"].to_dict()
+        return str(atc)
     
 def load_death_and_disease(death_path=death_ATC, disease_path=disease_ATC)->tuple:
     '''
