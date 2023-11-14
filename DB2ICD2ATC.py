@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 import re
 import icd9_to_atc4 as i2a
+from tqdm import tqdm
 
 load_dotenv() # load .env file
 
@@ -10,6 +11,8 @@ death_BD2ICD_path=os.environ.get("death_BD2ICD_path")
 disease_BD2ICD_path=os.environ.get("disease_BD2ICD_path")
 death_ATC = os.environ.get("death_ATC")
 disease_ATC = os.environ.get("disease_ATC")
+IHME_data_folder = os.environ.get("IHME_data_folder")
+IHME_save_folder = os.environ.get("IHME_save_folder")
 
 # Step 1: disease burden to icd9
 
@@ -223,10 +226,70 @@ def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->pd.DataFrame:
 
 
 # Step 2: use such relationships
-# measure_id-2-measure_name = {"1": "Deaths", "2": DALYs (Disability-Adjusted Life Years), and more ?} 
+#  
 # to specify whether its death or disease base on measure_id or measure_name (reference: the explanation of measure_name  on IHME's website, MEASURE_METRIC_DEFINITIONS in codebook folder)
 # load disease burden data from IHME and look up their atc4 codes
 # write atc4 codes and probabilities
+
+
+def load_and_update_IHME(folder_path:str=IHME_data_folder, save_folder:str=IHME_save_folder)->pd.DataFrame:
+    '''load IHME csv files in path as a list of DataFrame'''
+    csv_files = sorted([f for f in os.listdir(folder_path) if f.endswith(".csv")])
+    (death_df, disease_df) = load_death_and_disease()
+
+    # use tqdm to add a process bar
+    for filename in tqdm(csv_files):
+        path = os.path.join(folder_path, filename)
+        save_path = os.path.join(save_folder, "updated_" + filename)
+        df = pd.read_csv(path)
+        df = insert_atc(df, death_df, disease_df)
+        df.to_csv(save_path)
+    return
+
+
+def insert_atc(df:pd.DataFrame, death_df:pd.DataFrame, disease_df:pd.DataFrame)->pd.DataFrame:
+    '''insert atc distribution to a new column of df'''
+    for i in df.index:
+        measure_id = df.at[i, "measure_id"]
+        cause = df.at[i, "cause_name"]
+        death = isDeath(measure_id)
+        atc = lookup_atc(cause, death, death_df, disease_df)
+
+        # insert atc
+        df[i, "ATC-4"] = atc
+    
+    return df
+
+def lookup_atc(cause:str, death:bool, death_df:pd.DataFrame, disease_df:pd.DataFrame)->str:
+    '''Return atc-4 distribution as a str type'''
+    if death:
+        atc = death_df[death_df["Cause"]==cause]["ATC-4"]
+        return atc
+    else:
+        atc = disease_df[death_df["Cause"]==cause]["ATC-4"]
+        return atc
+
+def load_death_and_disease(death_path=death_ATC, disease_path=disease_ATC)->tuple:
+    '''
+    load BD to ATC-4 tables of death and disease
+    Return: (death_df, disease_df)
+    '''
+    death_df = pd.read_excel(death_path)
+    disease_df = pd.read_excel(disease_path)
+    return (death_df, disease_df)
+
+
+def isDeath(measure_id:str)->bool:
+    '''
+    Return True if the measure_id in that row is realated to death.
+    Else if related to disease, return False.
+    measure_id-2-measure_name = {"1": "Deaths", "2": "DALYs (Disability-Adjusted Life Years)", "3": "YLDs (Years Lived with Disability)", "4": "YLLs (Years of Life Lost)", "5": "Prevalence", "6": "Incidence", "25": "Maternal mortality ratio"}
+    '''
+    if measure_id in ["1", "25"]:
+        return True
+    else:
+        return False
+
 
 
 # run doctest
