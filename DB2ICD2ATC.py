@@ -214,6 +214,11 @@ def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->pd.DataFrame:
                 # print(distr_df)
                 # merge dictionaries and sum up probabilities of dupicate atc codes
                 results = pd.concat([results, distr_df]).groupby(['ATC']).sum().reset_index()
+                
+                # normalization of probabilities
+                total = results['Prob'].sum()
+                for i in results.index:
+                    results.at[i, 'Prob'] = results.at[i, 'Prob'] / total
 
     return results
 
