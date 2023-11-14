@@ -4,6 +4,10 @@ from dotenv import load_dotenv
 import re
 import icd9_to_atc4 as i2a
 from tqdm import tqdm
+from warnings import simplefilter
+
+# ignore warnings from pandas
+simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
 
 load_dotenv() # load .env file
 
@@ -242,7 +246,7 @@ def load_and_update_IHME(folder_path:str=IHME_data_folder, save_folder:str=IHME_
         path = os.path.join(folder_path, filename)
         save_path = os.path.join(save_folder, "updated_" + filename)
         df = pd.read_csv(path)
-        df = insert_atc(df, death_df, disease_df)
+        df = efficient_insert(df, death_df, disease_df)
         df.to_csv(save_path)
     print(f"Updated data saved in {save_folder}")
     return
@@ -261,6 +265,12 @@ def insert_atc(df:pd.DataFrame, death_df:pd.DataFrame, disease_df:pd.DataFrame)-
     
     return df
 
+def efficient_insert(df:pd.DataFrame, death_df:pd.DataFrame, disease_df:pd.DataFrame)->pd.DataFrame:
+    '''use apply to efficiently insert atc to new column'''
+    df["death"] = df["measure_id"].apply(isDeath)
+    df.apply(lambda x: lookup_atc(x["cause_name"], x["death"], death_df, disease_df), axis=1)
+    return df
+
 def lookup_atc(cause:str, death:bool, death_df:pd.DataFrame, disease_df:pd.DataFrame)->str:
     '''Return atc-4 distribution as a str type'''
     if death:
@@ -271,7 +281,7 @@ def lookup_atc(cause:str, death:bool, death_df:pd.DataFrame, disease_df:pd.DataF
         atc = disease_df[disease_df["Cause"]==cause]
         atc = atc["ATC-4"]
         return atc
-
+    
 def load_death_and_disease(death_path=death_ATC, disease_path=disease_ATC)->tuple:
     '''
     load BD to ATC-4 tables of death and disease
