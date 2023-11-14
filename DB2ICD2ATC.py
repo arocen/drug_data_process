@@ -253,7 +253,10 @@ def load_and_update_IHME(folder_path:str=IHME_data_folder, save_folder:str=IHME_
 
 
 def insert_atc(df:pd.DataFrame, death_df:pd.DataFrame, disease_df:pd.DataFrame)->pd.DataFrame:
-    '''insert atc distribution to a new column of df'''
+    '''
+    Insert atc distribution to a new column of df.
+    This function is deprecated. Use efficient_insert() instead.
+    '''
     for i in df.index:
         measure_id = df.at[i, "measure_id"]
         cause = df.at[i, "cause_name"]
@@ -261,14 +264,14 @@ def insert_atc(df:pd.DataFrame, death_df:pd.DataFrame, disease_df:pd.DataFrame)-
         atc = lookup_atc(cause, death, death_df, disease_df)
 
         # insert atc
-        df[i, "ATC-4"] = atc
+        df.at[i, "ATC-4"] = atc
     
     return df
 
 def efficient_insert(df:pd.DataFrame, death_df:pd.DataFrame, disease_df:pd.DataFrame)->pd.DataFrame:
     '''
-    Use apply to efficiently insert atc to new column.
-    death column indicates whether this row is related to death.
+    Use apply method of DataFrame to efficiently insert atc to new column.
+    "death" column indicates whether this row is related to death.
     '''
     df["death"] = df["measure_id"].apply(isDeath)
     df["ATC-4"] = df.apply(lambda x: lookup_atc(x["cause_name"], x["death"], death_df, disease_df), axis=1, result_type="expand")

@@ -15,4 +15,4 @@ def test():
     '''test with a small sample'''
     DIA.load_and_update_IHME(folder_path=IHME_test_data_folder, save_folder=IHME_test_save_folder)
 
-test()
+run()
