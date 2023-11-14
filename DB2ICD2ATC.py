@@ -182,9 +182,6 @@ def rm_zeros_and_decimals(icd9_code:str)->str:
 
 
 
-# Step 2: icd9 to atc4
-# measure_id-2-measure_name = {"1": "Deaths", "2": DALYs (Disability-Adjusted Life Years), and more ?} 
-# to specify whether its death or disease base on measure_id or measure_name (reference: the explanation of measure_name  on IHME's website, MEASURE_METRIC_DEFINITIONS in codebook folder)
 # for each icd9 list, loop over its element and look up atc4 codes, probability accordingly
 # sum probabilies of duplicate atc4 codes
 # write unique atc4 codes and probability to a new column of each disease burden
@@ -214,7 +211,7 @@ def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->pd.DataFrame:
                 # print(distr_df)
                 # merge dictionaries and sum up probabilities of dupicate atc codes
                 results = pd.concat([results, distr_df]).groupby(['ATC']).sum().reset_index()
-                
+
                 # normalization of probabilities
                 total = results['Prob'].sum()
                 for i in results.index:
@@ -225,11 +222,11 @@ def get_atc(icd_list:list, icd2atc_df:pd.DataFrame)->pd.DataFrame:
 
 
 
-# Step 3: use such relationships
+# Step 2: use such relationships
+# measure_id-2-measure_name = {"1": "Deaths", "2": DALYs (Disability-Adjusted Life Years), and more ?} 
+# to specify whether its death or disease base on measure_id or measure_name (reference: the explanation of measure_name  on IHME's website, MEASURE_METRIC_DEFINITIONS in codebook folder)
 # load disease burden data from IHME and look up their atc4 codes
 # write atc4 codes and probabilities
-
-# Question: Normalization atc4 probabilities of each disease burden? How to handle missing values when doing this?
 
 
 # run doctest
