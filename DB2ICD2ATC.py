@@ -302,9 +302,9 @@ def isDeath(measure_id:str)->bool:
     '''
     Return True if the measure_id in that row is realated to death.
     Else if related to disease, return False.
-    measure_id-2-measure_name = {"1": "Deaths", "2": "DALYs (Disability-Adjusted Life Years)", "3": "YLDs (Years Lived with Disability)", "4": "YLLs (Years of Life Lost)", "5": "Prevalence", "6": "Incidence", "25": "Maternal mortality ratio"}
+    measure_id-2-measure_name = {1: "Deaths", 2: "DALYs (Disability-Adjusted Life Years)", 3: "YLDs (Years Lived with Disability)", 4: "YLLs (Years of Life Lost)", 5: "Prevalence", 6: "Incidence", 25: "Maternal mortality ratio"}
     '''
-    if measure_id in ["1", "25"]:
+    if measure_id in [1, 25, '1', '25']:  # this column is actually int type
         return True
     else:
         return False
