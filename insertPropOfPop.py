@@ -54,13 +54,15 @@ def load_and_update_IHME(folder_path=IHME_load_folder, save_folder=IHME_prop_upd
         path = os.path.join(folder_path, filename)
         save_path = os.path.join(save_folder, "prop_updated_" + filename)
         df = pd.read_csv(path)
-        insertProp(...)
+        insertProp(df, popDict, lookupDict)
         df.to_csv(save_path)
     return
 
-def insertProp(df, insert_column):
+def insertProp(df:pd.DataFrame, popDict, lookupDict, insert_column="prop"):
     '''Insert proportion of population to each row of IHME dataframe.'''
-
+    # prop value might be None
+    # axis=0 is said to be "column-wise" (and axis=1 "row-wise")
+    df[insert_column] = df.apply(lambda x: lookUpProp(popDict, x["year"], x["sex_id"], x["age_id"], lookupDict), axis=1)
     return
 
 def lookUpProp(popDict:dict[str, pd.DataFrame], year:int, sex_id:int, age_id:int, lookupDict:dict)->float:
@@ -97,6 +99,9 @@ def chooseTable(sex_id, age_id)->str:
     if age_id == 22:
         return "allAge"
     
+    elif age_id == 164:
+        return "birth"
+    
     # Not all ages
     else:
         # Male
@@ -113,6 +118,9 @@ def getRowIndices(lookupDict:dict, table_name:str, sex_id:int, age_id:int)->list
     allAgeIndices = {1: [0, ], 2: [1, ], 3: [0, 1]}    # keys: sex_id
     if table_name == "allAge":
         return allAgeIndices[sex_id]
+    
+    elif table_name == "birth":
+        return allAgeIndices
         
     else:
         return  getIndicesExceptAllAge(lookupDict, age_id)
@@ -151,6 +159,7 @@ def initializeIndicesDict()->dict[int, list[int]]:
                 158: list(range(4)),
                 159: [2, 3, 4],
                 160: [17, 18, 19],
+                162: [3, 4],
                 169: list(range(2, 11)),
                 172: [1, 2],
                 188: [1, 2, 3],
@@ -177,3 +186,4 @@ def initializeIndicesDict()->dict[int, list[int]]:
 
 
 # testLoadPop()
+load_and_update_IHME()
