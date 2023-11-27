@@ -136,6 +136,7 @@ def initializeIndicesDict()->dict[int, list[int]]:
     for i in range(6, 21):
         singleGroup[i] = [i - 5, ]
     
+    # Use list(range(x, y)) to convert range into list
     loopkupDict = {1: [0, ],
                 21: [16, 17, 18, 19],
                 23: [1, 2],
