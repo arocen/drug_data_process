@@ -84,37 +84,28 @@ def chooseTable(sex_id, age_id)->str:
         else:
             return "both"
 
-def getRowIndices(table_name, sex_id, age_id)->list[int]:
+def getRowIndices(lookupDict:dict, table_name:str, sex_id:int, age_id:int)->list[int]|None:
     '''Get row indices according to table name, sex_id, and age_id.'''
+
+    allAgeIndices = {1: [0, ], 2: [1, ], 3: [0, 1]}    # keys: sex_id
     if table_name == "allAge":
-        if sex_id == 1:
-            return [0, ]
-        elif sex_id == 2:
-            return [1, ]
-        else:
-            return [0, 1]
+        return allAgeIndices[sex_id]
         
-    elif table_name == "male":
-        ...
+    else:
+        return  getIndicesExceptAllAge(lookupDict, age_id)
+    
 
-        return
-
-def ageGroupId2RowIndices(age_id)->list[int]:
+def getIndicesExceptAllAge(lookupDict:dict, age_id:int)->list[int]|None:
     '''If table name is "male", "female", or "both", get row indices according to age_id.'''
+    try:
+        return lookupDict[age_id]
+    except:
+        # Can not find key in lookupDict
+        return None
+    
 
-    if age_id in [1, range(6, 22)]:
-
-        # Under 5 age
-        if age_id == 1:
-            return [0, ]
-        
-        # Above 80
-        elif age_id == 21:
-            return [16, 17, 18, 19]
-        
-        # Other age groups
-        else:
-            return [age_id - 5, ]
+def initializeIndicesDict()->dict[int, list[int]]:
+    '''Inialize row indices dict for table "male", "female", or "both".'''
     
     # age_id in range(6, 21)
     singleGroup = dict()
@@ -140,75 +131,26 @@ def ageGroupId2RowIndices(age_id)->list[int]:
                 169: [range(2, 11)],
                 172: [1, 2],
                 188: [1, 2, 3],
-                197: [range(3, 8)]
+                197: [range(3, 8)],
+                206: [range(5, 10)],
+                228: [range(11, 20)],
+                230: [range(12, 16)],
+                232: [13, 14],
+                234: [range(15, 20)],
+                235: [19, ],
+                243: [15, 16],
+                284: [range(4, 11)],
+                285: [range(11, 18)],
+                286: [range(12, 18)],
+                287: [range(13, 18)],
+                288: [range(14, 18)],
+                289: [range(15, 18)],
+                420: [range(0, 14)]
+                }
+    # Merge 2 dict
+    loopkupDict.update(singleGroup)
+
+    return loopkupDict
 
 
-                    }
-    # # 5-14 years
-    # elif age_id == 23:
-    #     return [1, 2]
-    
-    # # 15-49 years
-    # elif age_id == 24:
-    #     return [range(3, 10)]
-    
-    # # 50-69 years
-    # elif age_id == 25:
-    #     return [range(10, 14)]
-    
-    # # 70+ years
-    # elif age_id == 26:
-    #     return [range(14, 20)]
-    
-    # # 80-84, 85-89, 90-94
-    # elif age_id in [30, 31, 32]:
-    #     return [age_id - 14, ]
-    
-    # # 20 plus
-    # elif age_id == 37:
-    #     return [range(4, 20)]
-    
-    # # 0-14
-    # elif age_id == 39:
-    #     return [0, 1, 2]
-    
-    # # 50 to 74 years
-    # elif age_id == 41:
-    #     return [range(10, 15)]
-    
-    # # 25 plus
-    # elif age_id == 157:
-    #     return [range(5, 20)]
-    
-    # # <20 years
-    # elif age_id == 158:
-    #     return [range(4)]
-    
-    # # 10 to 24
-    # elif age_id == 159:
-    #     return [2, 3, 4]
-    
-    # # 85 plus
-    # elif age_id == 160:
-    #     return [17, 18, 19]
-    
-    # # 10 to 54
-    # elif age_id == 169:
-    #     return [range(2, 11)]
-    
-    # # 0 to 9
-    # elif age_id == 172:
-    #     return [1, 2]
-    
-    # # 5 to 19
-    # elif age_id == 188:
-    #     return [1, 2, 3]
-    
-    # # 15 to 39
-    # elif age_id == 197:
-    #     return [range(3, 8)]
-    
-    # 
-
-
-testLoadPop()
+# testLoadPop()
