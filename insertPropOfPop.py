@@ -15,7 +15,8 @@ load_dotenv() # load .env file
 # 4. Insert proportion of population to a new column in IHME csv files.
 
 popDataPath = os.environ.get("popDataPath")
-IHME_save_folder = os.environ.get("IHME_save_folder")
+IHME_load_folder = os.environ.get("IHME_save_folder")
+IHME_prop_updated_save_folder = os.environ.get("IHME_prop_updated_save_folder")
 
 def loadPop(path=popDataPath):
     '''
@@ -39,23 +40,25 @@ def testLoadPop():
         print(value)
     print(pop["both"].at[1, 2014])
 
-def load_and_update_IHME(folder_path=IHME_save_folder, save_folder=IHME_save_folder):
+def load_and_update_IHME(folder_path=IHME_load_folder, save_folder=IHME_prop_updated_save_folder):
     '''load IHME csv files in path as a list of DataFrame'''
     csv_files = sorted([f for f in os.listdir(folder_path) if f.endswith(".csv")])
     
     # Initialize lookupDict
     lookupDict = initializeIndicesDict()
+    # load population data
+    popDict = loadPop()
 
     # use tqdm to add a process bar
     for filename in tqdm(csv_files):
         path = os.path.join(folder_path, filename)
-        save_path = os.path.join(save_folder, "updated_" + filename)
+        save_path = os.path.join(save_folder, "prop_updated_" + filename)
         df = pd.read_csv(path)
         insertProp(...)
         df.to_csv(save_path)
     return
 
-def insertProp():
+def insertProp(df, insert_column):
     '''Insert proportion of population to each row of IHME dataframe.'''
 
     return
