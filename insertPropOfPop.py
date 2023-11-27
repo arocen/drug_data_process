@@ -98,10 +98,7 @@ def chooseTable(sex_id, age_id)->str:
     # All ages
     if age_id == 22:
         return "allAge"
-    
-    elif age_id == 164:
-        return "birth"
-    
+
     # Not all ages
     else:
         # Male
@@ -118,10 +115,6 @@ def getRowIndices(lookupDict:dict, table_name:str, sex_id:int, age_id:int)->list
     allAgeIndices = {1: [0, ], 2: [1, ], 3: [0, 1]}    # keys: sex_id
     if table_name == "allAge":
         return allAgeIndices[sex_id]
-    
-    elif table_name == "birth":
-        return allAgeIndices
-        
     else:
         return  getIndicesExceptAllAge(lookupDict, age_id)
     
