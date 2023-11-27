@@ -42,6 +42,9 @@ def testLoadPop():
 def load_and_update_IHME(folder_path=IHME_save_folder, save_folder=IHME_save_folder):
     '''load IHME csv files in path as a list of DataFrame'''
     csv_files = sorted([f for f in os.listdir(folder_path) if f.endswith(".csv")])
+    
+    # Initialize lookupDict
+    lookupDict = initializeIndicesDict()
 
     # use tqdm to add a process bar
     for filename in tqdm(csv_files):
@@ -57,16 +60,33 @@ def insertProp():
 
     return
 
-def lookUpProp(pop:dict[str, pd.DataFrame], year:int, sex_id:int, age_id:int)->float:
+def lookUpProp(popDict:dict[str, pd.DataFrame], year:int, sex_id:int, age_id:int, lookupDict:dict)->float:
     '''
     Given year, sex_id, and age_id, look up proportion of population (percentage).
 
-    >>> lookUpProp(2015, 3, 15)
+    >>> popDict = loadPop()
+    >>> lookupDict = initializeIndicesDict()
+    >>> lookUpProp(popDict, 2015, 3, 15, lookupDict)
     7.58
+    >>> lookUpProp(popDict, 2017, 1, 22, lookupDict)
+    51.17
+    >>> lookUpProp(popDict, 2018, 2, 158, lookupDict)
+    10.11
     '''
     table_name = chooseTable(sex_id, age_id)
+    rowIndices = getRowIndices(lookupDict, table_name, sex_id, age_id)
 
-    return pop
+    # Check if cannot find row indices based on age groups
+    if not rowIndices:
+        return None
+
+    table = popDict[table_name]
+
+    # Sum values in all given row indices (This maybe buggy.)
+    print(rowIndices)
+    prop = table[year].iloc[rowIndices]  # Sum along axis 1 (columns)
+
+    return prop
 
 def chooseTable(sex_id, age_id)->str:
     '''Return table name where percentage will be looked up.'''
@@ -115,37 +135,37 @@ def initializeIndicesDict()->dict[int, list[int]]:
     loopkupDict = {1: [0, ],
                 21: [16, 17, 18, 19],
                 23: [1, 2],
-                24: [range(3, 10)],
-                25: [range(10, 14)],
-                26: [range(14, 20)],
+                24: list(range(3, 10)),
+                25: list(range(10, 14)),
+                26: list(range(14, 20)),
                 30: [16, ],
                 31: [17, ],
                 32: [18, ],
-                37: [range(4, 20)],
+                37: list(range(4, 20)),
                 39: [0, 1, 2],
-                41: [range(10, 15)],
-                157: [range(5, 20)],
-                158: [range(4)],
+                41: list(range(10, 15)),
+                157: list(range(5, 20)),
+                158: list(range(4)),
                 159: [2, 3, 4],
                 160: [17, 18, 19],
-                169: [range(2, 11)],
+                169: list(range(2, 11)),
                 172: [1, 2],
                 188: [1, 2, 3],
-                197: [range(3, 8)],
-                206: [range(5, 10)],
-                228: [range(11, 20)],
-                230: [range(12, 16)],
+                197: list(range(3, 8)),
+                206: list(range(5, 10)),
+                228: list(range(11, 20)),
+                230: list(range(12, 16)),
                 232: [13, 14],
-                234: [range(15, 20)],
+                234: list(range(15, 20)),
                 235: [19, ],
                 243: [15, 16],
-                284: [range(4, 11)],
-                285: [range(11, 18)],
-                286: [range(12, 18)],
-                287: [range(13, 18)],
-                288: [range(14, 18)],
-                289: [range(15, 18)],
-                420: [range(0, 14)]
+                284: list(range(4, 11)),
+                285: list(range(11, 18)),
+                286: list(range(12, 18)),
+                287: list(range(13, 18)),
+                288: list(range(14, 18)),
+                289: list(range(15, 18)),
+                420: list(range(0, 14))
                 }
     # Merge 2 dict
     loopkupDict.update(singleGroup)
