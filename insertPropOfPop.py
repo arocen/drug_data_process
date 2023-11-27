@@ -72,6 +72,7 @@ def lookUpProp(popDict:dict[str, pd.DataFrame], year:int, sex_id:int, age_id:int
     51.17
     >>> lookUpProp(popDict, 2018, 2, 158, lookupDict)
     10.11
+    >>> lookUpProp(popDict, 2018, 1, 28, lookupDict)
     '''
     table_name = chooseTable(sex_id, age_id)
     rowIndices = getRowIndices(lookupDict, table_name, sex_id, age_id)
@@ -82,9 +83,8 @@ def lookUpProp(popDict:dict[str, pd.DataFrame], year:int, sex_id:int, age_id:int
 
     table = popDict[table_name]
 
-    # Sum values in all given row indices (This maybe buggy.)
-    print(rowIndices)
-    prop = table[year].iloc[rowIndices]  # Sum along axis 1 (columns)
+    # Sum values in all given row indices (This is tricky.)
+    prop = table[year].iloc[rowIndices].sum(axis=0)  # Sum along axis 0 (rows)
 
     return prop
 
